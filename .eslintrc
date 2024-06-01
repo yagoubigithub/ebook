@@ -1,7 +1,35 @@
 {
-    "parser": "@babel/eslint-parser",
-    "extends": ["airbnb"],
-   "rules": {
-    "import/no-extraneous-dependencies": ["error", {"devDependencies": true}]
-   }
-  }
+  "parser": "@babel/eslint-parser",
+  
+  
+  "overrides": [
+    {
+      "files": ["**/*.js",  "**/*.mjs"],
+      "extends": ["airbnb"],
+      "rules": {
+        "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
+        "no-underscore-dangle": "off"
+      }
+    },
+    {
+        "files" : ["**/*.jsx"],
+        "extends": ["eslint:recommended", "plugin:react/recommended", "plugin:react-hooks/recommended"],
+        "env": {
+            "browser": true
+        },
+        "parserOptions": {
+            "ecmaVersion": 12,
+            "sourceType": "module",
+            "ecmaFeatures": {
+              "jsx": true
+            }
+          },
+          "plugins": ["react", "react-hooks"],
+          "settings": {
+            "react": {
+              "version": "detect"
+            }
+          }
+    }
+  ]
+}
