@@ -1,5 +1,6 @@
 
 import HtmlWebpackPlugin from "html-webpack-plugin";
+import ESLintPlugin  from "eslint-webpack-plugin";
 import path  from "path";
 import { fileURLToPath } from 'url';
 
@@ -65,7 +66,8 @@ const config = {
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, "app/src/index.html"),
             filename: "index.html"
-        })
+        }),
+        new ESLintPlugin()
     ]
 };
 
