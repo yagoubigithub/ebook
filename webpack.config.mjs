@@ -1,7 +1,14 @@
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const path = require("path");
 
-module.exports = {
+import HtmlWebpackPlugin from "html-webpack-plugin";
+import path  from "path";
+import { fileURLToPath } from 'url';
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+const config = {
     
     entry: "./app/src/index.jsx",
     output: {
@@ -61,3 +68,5 @@ module.exports = {
         })
     ]
 };
+
+export default config;
