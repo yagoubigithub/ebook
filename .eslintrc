@@ -1,19 +1,21 @@
 {
   "parser": "@babel/eslint-parser",
   
-  
   "overrides": [
     {
       "files": ["**/*.js",  "**/*.mjs"],
-      "extends": ["airbnb"],
+      "extends": ["airbnb" , "prettier"],
+      "plugins": ["prettier"],
+     
       "rules": {
+        "prettier/prettier": "error",
         "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
         "no-underscore-dangle": "off"
       }
     },
     {
         "files" : ["**/*.jsx"],
-        "extends": ["eslint:recommended", "plugin:react/recommended", "plugin:react-hooks/recommended"],
+        "extends": ["eslint:recommended", "plugin:react/recommended", "plugin:react-hooks/recommended", "plugin:prettier/recommended"],
         "env": {
             "browser": true
         },
