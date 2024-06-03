@@ -1,7 +1,7 @@
 import { BrowserWindow, app } from 'electron';
 
 import path from 'path';
-import __dirname from '../../__dirname';
+import __dirname from '../../__dirname.js';
 
 export default function createWindow() {
   // our window you can chanege the size  and other
