@@ -1,11 +1,20 @@
 import { BrowserWindow, app } from 'electron';
 
 import path from 'path';
-import __dirname from '../../__dirname.js';
+import __dirname from '../__dirname.js';
 
-export default function createWindow() {
-  // our window you can chanege the size  and other
+/**
+ *
+ * Create any window with our peoject
+ * @method
+ * @returns {BrowserWindow}   window object
+ */
 
+function createWindow() {
+  /**
+   * the window object
+   * @type {BrowserWindow}
+   */
   const window = new BrowserWindow({
     show: true,
     height: 500,
@@ -36,3 +45,5 @@ export default function createWindow() {
   });
   return window;
 }
+
+export default createWindow;

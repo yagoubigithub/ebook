@@ -11,7 +11,7 @@
     "dist": "electron-builder",
     "lint": "eslint . --fix",
     "start": "concurrently \"webpack serve --mode development --config ./webpack.development.js\" \" wait-on http://localhost:40992 && cross-env NODE_ENV=development electron .  \"  ",
-    "test": "jest"
+    "test": "nyc jest"
   },
   "build": {
     "productName": "electronreact",
@@ -50,6 +50,7 @@
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
     "css-loader": "^6.8.1",
+    "docdash": "^2.0.2",
     "electron": "^30.0.9",
     "electron-builder": "^24.13.3",
     "eslint": "8.2.0",

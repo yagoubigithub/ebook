@@ -1,0 +1,43 @@
+{
+    "source": {
+      "include": ["./app"],
+      "includePattern": ".js$",
+      "excludePattern": "(node_modules/|docs)"
+    },
+    "plugins": [
+        "plugins/markdown"
+    ],
+    "docdash": {
+        "static": true,
+        "sort": true,
+        "search": true,
+        "collapse": true,
+        "typedefs": true,
+        "removeQuotes": "none",
+        "scripts": [],
+        "menu":{
+            "Github repo": {
+                "href":"https://github.com/your-github-username/pet-adoption-center-sdk",
+                "target":"_blank",
+                "class":"menu-item",
+                "id":"repository"
+            }
+        }
+    },
+    
+    "templates": {
+        "default": {
+            "useLongnameInNav": true
+        },
+        "cleverLinks": false,
+        "monospaceLinks": false
+    },
+    "opts": {
+      "recurse": true,
+      "destination": "./docs/",
+      "template": "node_modules/docdash",
+      "encoding": "utf8",
+      "verbose": true
+     
+    }
+  }
