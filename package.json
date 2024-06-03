@@ -10,7 +10,8 @@
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "lint": "eslint . --fix",
-    "start": "concurrently \"webpack serve --mode development --config ./webpack.development.js\" \" wait-on http://localhost:40992 && cross-env NODE_ENV=development electron .  \"  "
+    "start": "concurrently \"  npm run test \" \"webpack serve --mode development --config ./webpack.development.js\" \" wait-on http://localhost:40992 && cross-env NODE_ENV=development electron .  \"  ",
+    "test": "jest"
   },
   "build": {
     "productName": "electronreact",
@@ -62,6 +63,7 @@
     "eslint-webpack-plugin": "^4.2.0",
     "html-loader": "^4.2.0",
     "html-webpack-plugin": "^5.5.3",
+    "jest": "^29.7.0",
     "postcss-loader": "^7.3.3",
     "prettier": "^3.2.5",
     "sass": "^1.68.0",
