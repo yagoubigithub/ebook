@@ -10,7 +10,9 @@
       "rules": {
         "prettier/prettier": "error",
         "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
-        "no-underscore-dangle": "off"
+        "no-underscore-dangle": "off",
+        "no-unused-vars" : "warn",
+        "import/extensions" : "off"
       }
     },
     {
