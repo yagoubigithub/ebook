@@ -9,7 +9,7 @@ import createWindow from './windows/createWindow.js';
 let mainWindow;
 
 app.whenReady().then(() => {
-  mainWindow = createWindow();
+  mainWindow = createWindow('main', {});
   mainWindow.show();
 
   app.on('activate', () => {
@@ -18,7 +18,7 @@ app.whenReady().then(() => {
      *  dock icon is clicked and there are no other windows open.
      */
     if (BrowserWindow.getAllWindows().length === 0) {
-      mainWindow = createWindow();
+      mainWindow = createWindow('main', {});
     }
   });
 });

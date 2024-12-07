@@ -1,5 +1,7 @@
 import { BrowserWindow, app } from 'electron';
 
+import { createFileRoute, createURLRoute } from 'electron-router-dom';
+
 import path from 'path';
 import __dirname from '../__dirname.js';
 
@@ -10,7 +12,7 @@ import __dirname from '../__dirname.js';
  * @returns {BrowserWindow}   window object
  */
 
-function createWindow() {
+function createWindow(id, options = {}) {
   /**
    * the window object
    * @type {BrowserWindow}
@@ -19,6 +21,7 @@ function createWindow() {
     show: true,
     height: 500,
     width: 800,
+    ...options,
 
     webPreferences: {
       preload: path.join(__dirname, './preload.js'),
@@ -26,12 +29,18 @@ function createWindow() {
     },
   });
 
+  const devServerURL = createURLRoute('http://localhost:40992', id);
+
+  const fileRoute = createFileRoute(
+    path.join(__dirname, './app/dist/index.html'),
+    id,
+  );
   if (app.isPackaged) {
-    window.loadFile('./app/dist/index.html');
+    window.loadFile(...fileRoute);
 
     // window.setMenu(null);
   } else {
-    window.loadURL('http://localhost:40992');
+    window.loadURL(devServerURL);
   }
 
   // Automatically open Chrome's DevTools in development mode.
