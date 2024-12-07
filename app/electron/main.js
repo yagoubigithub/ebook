@@ -1,6 +1,6 @@
 import { app, BrowserWindow } from 'electron';
 
-import createWindow from './windows/createWindow';
+import createWindow from './windows/createWindow.js';
 
 /**
  * the main window of our porject
