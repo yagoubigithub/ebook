@@ -1,7 +1,7 @@
 import React from 'react';
 import { Router, Route } from 'electron-router-dom';
 
-import Home from './screens/Home';
+import Books from './screens/Books';
 import Layout from './components/Layout';
 
 function AppRoutes() {
@@ -9,7 +9,7 @@ function AppRoutes() {
     <Router
       main={
         <Route path="/" element={<Layout />}>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Books />} />
         </Route>
       }
     />

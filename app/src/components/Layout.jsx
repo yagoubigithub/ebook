@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 
-import { Button, Layout, theme, Typography } from 'antd';
+import { Button, Layout, Menu, theme, Typography } from 'antd';
 
-import { MenuOutlined } from '@ant-design/icons';
+import { MenuOutlined, HomeOutlined, AlertOutlined } from '@ant-design/icons';
 const { Header, Content, Sider } = Layout;
 
 const App = () => {
@@ -57,7 +57,25 @@ const App = () => {
           collapsed={collapsed}
           onCollapse={(value) => setCollapsed(value)}
           trigger={null}
-        ></Sider>
+        >
+          <Menu
+            mode="inline"
+            defaultSelectedKeys={['1']}
+            className={`custom-menu ${collapsed ? 'collapsed-menu' : ''}`}
+            items={[
+              {
+                key: '1',
+                icon: <HomeOutlined />,
+                label: 'Books',
+              },
+              {
+                key: '2',
+                icon: <AlertOutlined />,
+                label: 'Notes',
+              },
+            ]}
+          />
+        </Sider>
         <Layout style={{ padding: '0 24px 24px' }}>
           <Content
             style={{

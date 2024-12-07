@@ -1,3 +1,22 @@
 body {
 margin: 0;
 }
+
+.custom-menu {
+
+margin: 0;
+padding-left: 0;
+}
+.custom-menu .ant-menu-item {
+ border-radius: 0 20px 20px 0 !important;
+ font-size: 15px;
+}
+.custom-menu .ant-menu-item-selected {
+  background-color: rgba(75, 75, 75, 1) !important;
+  color: white !important;
+  font-weight: bold;
+}
+.collapsed-menu .ant-menu-item {
+  text-align: center;
+  font-size: 18px;
+}
