@@ -2,9 +2,9 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 
 import fs from 'fs-extra';
 import path from 'path';
+import chokidar from 'chokidar';
 import createWindow from './windows/createWindow.js';
 
-import chokidar from 'chokidar';
 /**
  * the main window of our porject
  * @type {BrowserWindow}
@@ -45,8 +45,17 @@ ipcMain.on('import', (ev, file) => {
   );
 });
 
+ipcMain.on('readAllBooks', () => {
+  const files = fs.readdirSync(path.join(process.resourcesPath, 'uplaod'));
+  mainWindow.webContents.send(
+    'files',
+    files.map((file) => path.join(process.resourcesPath, 'uplaod', file)),
+  );
+});
+
 // Initialize chokidar
 const watcher = chokidar.watch(path.join(process.resourcesPath, 'uplaod'), {
+  // eslint-disable-next-line no-useless-escape
   ignored: /(^|[\/\\])\../, // Ignore dotfiles
   persistent: true,
 });

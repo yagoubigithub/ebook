@@ -13,6 +13,7 @@ const textLayerBuilderCSS = await fetchText(pdfjsPath('text_layer_builder.css'))
 const annotationLayerBuilderCSS = await fetchText(pdfjsPath('annotation_layer_builder.css'))
 
 const render = async (page, doc, zoom) => {
+    if(!doc) return;
     const scale = zoom * devicePixelRatio
     doc.documentElement.style.transform = `scale(${1 / devicePixelRatio})`
     doc.documentElement.style.transformOrigin = 'top left'
