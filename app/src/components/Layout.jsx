@@ -13,6 +13,17 @@ const App = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  const handleChangeImport = (event) => {
+    const file = event.target.files[0];
+
+    window.electron.ipcRenderer.send('import', {
+      name: file.name,
+      path: file.path,
+      size: file.size,
+      type: file.type,
+    });
+    event.target.value = '';
+  };
   return (
     <Layout>
       <Header
@@ -49,15 +60,22 @@ const App = () => {
           eBook
         </Typography.Title>
 
-        <Button
-          color="default"
-          variant="solid"
+        <label
+          htmlFor="import"
+          className="ant-btn css-dev-only-do-not-override-1wwf28x ant-btn-round ant-btn-default ant-btn-color-default ant-btn-variant-solid ant-btn-lg"
           style={{ marginLeft: 'auto' }}
-          shape="round"
-          size="large"
         >
-          Import
-        </Button>
+          <span>Import</span>
+        </label>
+        <input
+          type="file"
+          id="import"
+          name="import"
+          hidden
+          accept=".epub,.mobi,.azw3,.fb2,.cbz,.pdf"
+          onChange={handleChangeImport}
+          multiple={false}
+        />
       </Header>
       <Layout>
         <Sider

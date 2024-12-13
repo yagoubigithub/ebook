@@ -1,7 +1,10 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 
+import fs from 'fs-extra';
+import path from 'path';
 import createWindow from './windows/createWindow.js';
 
+import chokidar from 'chokidar';
 /**
  * the main window of our porject
  * @type {BrowserWindow}
@@ -34,3 +37,30 @@ app.on('window-all-closed', () => {
     app.quit();
   }
 });
+
+ipcMain.on('import', (ev, file) => {
+  fs.copyFileSync(
+    file.path,
+    path.join(process.resourcesPath, 'uplaod', file.name),
+  );
+});
+
+// Initialize chokidar
+const watcher = chokidar.watch(path.join(process.resourcesPath, 'uplaod'), {
+  ignored: /(^|[\/\\])\../, // Ignore dotfiles
+  persistent: true,
+});
+
+watcher
+  .on('add', (filePath) => {
+    console.log(`File added: ${filePath}`);
+    mainWindow.webContents.send('file-added', filePath);
+  })
+  .on('change', (filePath) => {
+    console.log(`File changed: ${filePath}`);
+    mainWindow.webContents.send('file-changed', filePath);
+  })
+  .on('unlink', (filePath) => {
+    console.log(`File removed: ${filePath}`);
+    mainWindow.webContents.send('file-removed', filePath);
+  });
