@@ -29,6 +29,10 @@ function createWindow(id, options = {}) {
       webSecurity: false,
     },
   });
+  window.webContents.setWindowOpenHandler(({ url }) => {
+    console.log(url);
+    return { action: 'deny' };
+  });
 
   const devServerURL = createURLRoute('http://localhost:40992', id);
 

@@ -6,25 +6,36 @@ const Books = () => {
     window.electron.ipcRenderer.send('readAllBooks');
     const book = async (filepath, name) => {
       const view = document.createElement('foliate-view');
-
+      view.onclick = () => {
+        console.log('onclick');
+      };
       view.style.width = '105px';
       view.style.height = '137px';
 
       const { card, cardCover, cardAction, cardBody } = createCard();
-      cardBody.innerHTML = `<span class="card-title">${name}</span>`;
+
+      const title = document.createElement('span');
+      title.className = 'card-title';
+      title.innerText = name;
+
+      title.onclick = () => {
+        console.log('click');
+      };
+      cardBody.append(title);
       cardCover.append(view);
+
       card.append(cardCover, cardBody, cardAction);
       document.getElementById('books').prepend(card);
       view.addEventListener('relocate', (e) => {
         console.log('location changed');
-        console.log(e.detail);
+        console.log(e);
       });
+
       // can open a File/Blob object or a URL
       // or any object that implements the "book" interface
       //C:/Users/pc/Desktop/projects/ebook/app/src/accessible_epub_3.epub
       await view.open(filepath);
 
-      console.log(view);
       //await view.open('https://www.sldttc.org/allpdf/21583473018.pdf');
       await view.goTo(0);
     };
