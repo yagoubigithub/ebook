@@ -19,7 +19,7 @@ const Books = () => {
       title.innerText = name;
 
       title.onclick = () => {
-        console.log('click');
+        window.electron.ipcRenderer.send('open-book', filepath);
       };
       cardBody.append(title);
       cardCover.append(view);

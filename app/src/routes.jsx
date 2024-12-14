@@ -12,6 +12,7 @@ function AppRoutes() {
           <Route path="/" element={<Books />} />
         </Route>
       }
+      book={<Route path="/" element={<h1>test</h1>} />}
     />
   );
 }

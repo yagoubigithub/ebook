@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, screen } from 'electron';
 
 import fs from 'fs-extra';
 import path from 'path';
@@ -10,9 +10,14 @@ import createWindow from './windows/createWindow.js';
  * @type {BrowserWindow}
  */
 let mainWindow;
+let book;
 
 app.whenReady().then(() => {
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+
   mainWindow = createWindow('main', {});
+  book = createWindow('book', { show: false, width, height });
+
   mainWindow.show();
 
   app.on('activate', () => {
@@ -82,3 +87,8 @@ watcher
       name: path.basename(filePath),
     });
   });
+
+ipcMain.on('open-book', (ev, filePath) => {
+  console.log('filepath : ', filePath);
+  book.show();
+});
