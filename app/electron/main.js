@@ -49,7 +49,10 @@ ipcMain.on('readAllBooks', () => {
   const files = fs.readdirSync(path.join(process.resourcesPath, 'uplaod'));
   mainWindow.webContents.send(
     'files',
-    files.map((file) => path.join(process.resourcesPath, 'uplaod', file)),
+    files.map((file) => ({
+      filePath: path.join(process.resourcesPath, 'uplaod', file),
+      name: file,
+    })),
   );
 });
 
@@ -62,14 +65,20 @@ const watcher = chokidar.watch(path.join(process.resourcesPath, 'uplaod'), {
 
 watcher
   .on('add', (filePath) => {
-    console.log(`File added: ${filePath}`);
-    mainWindow.webContents.send('file-added', filePath);
+    mainWindow.webContents.send('file-added', {
+      filePath,
+      name: path.basename(filePath),
+    });
   })
   .on('change', (filePath) => {
-    console.log(`File changed: ${filePath}`);
-    mainWindow.webContents.send('file-changed', filePath);
+    mainWindow.webContents.send('file-changed', {
+      filePath,
+      name: path.basename(filePath),
+    });
   })
   .on('unlink', (filePath) => {
-    console.log(`File removed: ${filePath}`);
-    mainWindow.webContents.send('file-removed', filePath);
+    mainWindow.webContents.send('file-removed', {
+      filePath,
+      name: path.basename(filePath),
+    });
   });

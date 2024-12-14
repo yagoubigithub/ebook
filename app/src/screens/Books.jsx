@@ -1,15 +1,20 @@
 import React, { useEffect } from 'react';
 import '../foliate/view.js';
+
 const Books = () => {
   useEffect(() => {
     window.electron.ipcRenderer.send('readAllBooks');
-    const book = async (filepath) => {
+    const book = async (filepath, name) => {
       const view = document.createElement('foliate-view');
-      view.style.width = '100px';
-      view.style.height = '220px';
 
-      document.getElementById('books').prepend(view);
+      view.style.width = '105px';
+      view.style.height = '137px';
 
+      const { card, cardCover, cardAction, cardBody } = createCard();
+      cardBody.innerHTML = `<span class="card-title">${name}</span>`;
+      cardCover.append(view);
+      card.append(cardCover, cardBody, cardAction);
+      document.getElementById('books').prepend(card);
       view.addEventListener('relocate', (e) => {
         console.log('location changed');
         console.log(e.detail);
@@ -27,31 +32,31 @@ const Books = () => {
     //  book('https://www.sldttc.org/allpdf/21583473018.pdf');
 
     // Listen for file-added events
-    window.electron.ipcRenderer.on('file-added', (ev, filePath) => {
+    window.electron.ipcRenderer.on('file-added', (ev, { filePath, name }) => {
       console.log(`File added: `, filePath);
 
-      book(filePath);
-     // window.electron.ipcRenderer.send('readAllBooks');
+      book(filePath, name);
+      // window.electron.ipcRenderer.send('readAllBooks');
     });
 
     // Listen for file-changed events
-    window.electron.ipcRenderer.on('file-changed', (ev, filePath) => {
+    window.electron.ipcRenderer.on('file-changed', (ev, { filePath }) => {
       console.log(`File changed:`, filePath);
 
       window.electron.ipcRenderer.send('readAllBooks');
     });
 
     // Listen for file-removed events
-    window.electron.ipcRenderer.on('file-removed', (ev, filePath) => {
+    window.electron.ipcRenderer.on('file-removed', (ev, { filePath }) => {
       console.log(`File removed: `, filePath);
 
       window.electron.ipcRenderer.send('readAllBooks');
     });
     window.electron.ipcRenderer.on('files', (ev, _files) => {
       console.log(`files: `, _files);
-      document.getElementById('books').innerHTML = 'Books';
-      _files.map((path) => {
-        book(path);
+      document.getElementById('books').innerHTML = '';
+      _files.map(({ filePath, name }) => {
+        book(filePath, name);
       });
     });
     return () => {
@@ -62,6 +67,19 @@ const Books = () => {
       window.electron.ipcRenderer.removeAllListeners('files');
     };
   }, []);
+
+  const createCard = () => {
+    const card = document.createElement('div');
+    const cardCover = document.createElement('div');
+    const cardAction = document.createElement('ul');
+    const cardBody = document.createElement('div');
+    card.classList.add('card', 'card-bordered');
+
+    cardCover.classList.add('card-cover');
+    cardAction.classList.add('card-actions');
+    cardBody.classList.add('card-actions');
+    return { card, cardCover, cardAction, cardBody };
+  };
   return (
     <div
       id="books"
@@ -69,9 +87,7 @@ const Books = () => {
         display: 'flex',
         flexWrap: 'wrap',
       }}
-    >
-      Books
-    </div>
+    ></div>
   );
 };
 
