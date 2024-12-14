@@ -43,3 +43,14 @@ foliate-view {
   text-decoration: underline;
   cursor: pointer;
 }
+
+#book {
+  flex : 3;
+}
+#book-sidebar{
+  flex: 1;
+}
+#book-container {
+  display: flex;
+  height: calc(100vh - 62px);
+}

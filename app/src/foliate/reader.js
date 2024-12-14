@@ -3,6 +3,7 @@ import { createTOCView } from './ui/tree.js'
 import { createMenu } from './ui/menu.js'
 import { Overlayer } from './overlayer.js'
 
+console.log("is work")
 const getCSS = ({ spacing, justify, hyphenate }) => `
     @namespace epub "http://www.idpf.org/2007/ops";
     html {
@@ -111,6 +112,7 @@ class Reader {
         this.view.addEventListener('relocate', this.#onRelocate.bind(this))
 
         const { book } = this.view
+        console.log(book)
         this.view.renderer.setStyles?.(getCSS(this.style))
         this.view.renderer.next()
 

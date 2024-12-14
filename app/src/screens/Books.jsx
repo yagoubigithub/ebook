@@ -6,9 +6,7 @@ const Books = () => {
     window.electron.ipcRenderer.send('readAllBooks');
     const book = async (filepath, name) => {
       const view = document.createElement('foliate-view');
-      view.onclick = () => {
-        console.log('onclick');
-      };
+
       view.style.width = '105px';
       view.style.height = '137px';
 
@@ -26,9 +24,9 @@ const Books = () => {
 
       card.append(cardCover, cardBody, cardAction);
       document.getElementById('books').prepend(card);
-      view.addEventListener('relocate', (e) => {
+      view.addEventListener('relocate', () => {
         console.log('location changed');
-        console.log(e);
+        // console.log(e);
       });
 
       // can open a File/Blob object or a URL
@@ -36,6 +34,8 @@ const Books = () => {
       //C:/Users/pc/Desktop/projects/ebook/app/src/accessible_epub_3.epub
       await view.open(filepath);
 
+      const { book } = view;
+      console.log('book : ', book);
       //await view.open('https://www.sldttc.org/allpdf/21583473018.pdf');
       await view.goTo(0);
     };
@@ -64,7 +64,6 @@ const Books = () => {
       window.electron.ipcRenderer.send('readAllBooks');
     });
     window.electron.ipcRenderer.on('files', (ev, _files) => {
-      console.log(`files: `, _files);
       document.getElementById('books').innerHTML = '';
       _files.map(({ filePath, name }) => {
         book(filePath, name);

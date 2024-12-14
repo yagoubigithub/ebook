@@ -89,6 +89,10 @@ watcher
   });
 
 ipcMain.on('open-book', (ev, filePath) => {
-  console.log('filepath : ', filePath);
+  book.webContents.send('file-to-display', {
+    filePath,
+    name: path.basename(filePath),
+  });
   book.show();
+  book.maximize();
 });
