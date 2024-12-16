@@ -50,7 +50,7 @@ const html = `<style>
 
 // TODO: lang, vertical writing
 customElements.define('foliate-quoteimage', class extends HTMLElement {
-    #root = this.attachShadow({ mode: 'closed' })
+    #root = this.attachShadow({ mode: 'open' })
     constructor() {
         super()
         this.#root.innerHTML = html

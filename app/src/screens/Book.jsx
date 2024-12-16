@@ -1,18 +1,23 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 
-import { Tabs, Layout, Menu, theme, Typography } from 'antd';
+import { Tabs, Layout, theme } from 'antd';
+import MyContext from '../MyContext.js';
+
 import '../foliate/view.js';
 
-import { createTOCView } from '../foliate/ui/tree.js';
-import { createMenu } from '../foliate/ui/menu.js';
-import { Overlayer } from '../foliate/overlayer.js';
-
-const { Header, Content, Sider } = Layout;
+const { Content, Sider } = Layout;
 const Book = () => {
+  const { notes, setNotes } = useContext(MyContext);
+
   const oneTime = useRef(true);
+  const viewRef = useRef(null);
 
   useEffect(() => {
     if (oneTime.current) {
+      // Handle text selection
+      document.addEventListener('selectionchange', () => {
+        console.log('select');
+      });
       window.electron.ipcRenderer.on(
         'file-to-display',
         async (ev, { filePath }) => {
@@ -22,30 +27,145 @@ const Book = () => {
           view.style.width = width + 'px';
           view.style.height = height + 'px';
 
-          view.addEventListener('relocate', () => {
-            console.log('location changed');
-            // console.log(e);
+          view.addEventListener('relocate', (e) => {
+            // console.log('location changed');
+            console.log(e.detail);
+            const shadowRoot = view.shadowRoot; // This only works for open shadow roots
+            const paginator = shadowRoot.querySelector('foliate-paginator');
+            const iframe = paginator.shadowRoot.querySelector('iframe');
+            handleSelect(iframe);
           });
 
           bookEle.prepend(view);
           await view.open(filePath);
 
-          const { book } = view;
-          console.log('book : ', book);
-          await view.goTo(1);
+          await view.goTo(0);
+
+          const shadowRoot = view.shadowRoot; // This only works for open shadow roots
+          const paginator = shadowRoot.querySelector('foliate-paginator');
+          const iframe = paginator.shadowRoot.querySelector('iframe');
+          handleSelect(iframe);
+          viewRef.current = view;
         },
       );
       oneTime.current = false;
     }
   });
+
+  const handleSelect = (iframe) => {
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+    // Add a menu container to the iframe (or the parent document if preferred)
+    const menu = document.createElement('div');
+    menu.id = 'highlightMenu';
+    menu.style.position = 'absolute';
+    menu.style.display = 'none';
+    menu.style.background = 'white';
+    menu.style.border = '1px solid black';
+    menu.style.padding = '5px';
+    iframeDoc.body.appendChild(menu);
+
+    menu.innerHTML = `<div>
+    
+    <textarea id="textarea"></textarea>
+    <br />
+    <button id="save">save</button>
+     <button id="cancel">cancel</button>
+    </div>`;
+    // Listen for selection changes
+    iframeDoc.addEventListener('mouseup', () => {
+      // If the mouseup event originated from a child, ignore it
+      const selection = iframeDoc.getSelection();
+      if (selection && selection.toString().trim()) {
+        const range = selection.getRangeAt(0);
+        // Create a highlight span
+        const highlightSpan = iframeDoc.createElement('span');
+        highlightSpan.style.backgroundColor = 'yellow';
+        highlightSpan.classList.add('highlight');
+        highlightSpan.textContent = range.toString();
+
+        // Replace the selected text with the highlighted span
+        range.deleteContents();
+        range.insertNode(highlightSpan);
+
+        console.log('Highlighted text:', highlightSpan.textContent);
+
+        // Position the menu near the selection
+        const rect = highlightSpan.getBoundingClientRect(); // Get position of the highlighted text
+        menu.style.left = `${rect.left + window.scrollX}px`;
+        menu.style.top = `${rect.bottom + window.scrollY}px`;
+        menu.style.display = 'block';
+        menu.querySelector('#save').onclick = () => {
+          highlightSpan.replaceWith(
+            document.createTextNode(highlightSpan.textContent),
+          ); // Remove highlight
+          menu.style.display = 'none';
+
+          setNotes([
+            ...notes,
+            {
+              text: highlightSpan.textContent,
+              note: menu.querySelector('#textarea').value,
+            },
+          ]);
+        };
+        menu.querySelector('#cancel').onclick = () => {
+          menu.style.display = 'none';
+          highlightSpan.replaceWith(
+            document.createTextNode(highlightSpan.textContent),
+          ); // Remove highlight
+
+          console.log(menu);
+        };
+      }
+    });
+    // // Hide menu if clicked elsewhere
+    // iframeDoc.addEventListener('click', (e) => {
+    //   if (!menu.contains(e.target)) {
+    //     menu.style.display = 'none';
+    //   }
+    // });
+  };
   const items = [
     {
       key: '1',
       label: 'Reading Mode Tab',
       children: (
-        <div id="book-container">
-          <div id="book"></div>
-          <div id="book-sidebar">side bare</div>
+        <div>
+          <div id="book-container">
+            <div id="book">
+              <button
+                id="prev"
+                onClick={() => {
+                  if (viewRef.current) {
+                    viewRef.current.prev();
+                  }
+                }}
+              >
+                prev
+              </button>
+              <button
+                id="next"
+                onClick={() => {
+                  if (viewRef.current) {
+                    viewRef.current.next();
+                  }
+                }}
+              >
+                next
+              </button>
+            </div>
+            <div id="book-sidebar">
+              {notes.map((note, index) => {
+                return (
+                  <ul key={index}>
+                    <li>text : {note.text}</li>
+                    <li>note : {note.note}</li>
+                  </ul>
+                );
+              })}
+            </div>
+          </div>
         </div>
       ),
     },

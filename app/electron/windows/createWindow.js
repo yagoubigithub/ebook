@@ -1,8 +1,10 @@
-import { BrowserWindow, app } from 'electron';
+import { BrowserWindow, app, dialog } from 'electron';
 
 import { createFileRoute, createURLRoute } from 'electron-router-dom';
 
 import path from 'path';
+
+import fs from 'fs';
 import __dirname from '../__dirname.js';
 
 /**
@@ -37,7 +39,7 @@ function createWindow(id, options = {}) {
   const devServerURL = createURLRoute('http://localhost:40992', id);
 
   const fileRoute = createFileRoute(
-    path.join(__dirname, './app/dist/index.html'),
+    path.join(__dirname, '../dist/index.html'),
     id,
   );
   if (app.isPackaged) {

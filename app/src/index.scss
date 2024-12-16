@@ -46,6 +46,7 @@ foliate-view {
 
 #book {
   flex : 3;
+  position: relative;
 }
 #book-sidebar{
   flex: 1;
@@ -53,4 +54,15 @@ foliate-view {
 #book-container {
   display: flex;
   height: calc(100vh - 62px);
+}
+#next {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+#prev {
+  position: absolute;
+  bottom: 0;
+  left: 0;
 }

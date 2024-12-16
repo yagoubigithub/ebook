@@ -44,6 +44,9 @@ app.on('window-all-closed', () => {
 });
 
 ipcMain.on('import', (ev, file) => {
+  if (!fs.existsSync(path.join(process.resourcesPath, 'uplaod'))) {
+    fs.mkdirSync(path.join(process.resourcesPath, 'uplaod'));
+  }
   fs.copyFileSync(
     file.path,
     path.join(process.resourcesPath, 'uplaod', file.name),
@@ -51,6 +54,9 @@ ipcMain.on('import', (ev, file) => {
 });
 
 ipcMain.on('readAllBooks', () => {
+  if (!fs.existsSync(path.join(process.resourcesPath, 'uplaod'))) {
+    fs.mkdirSync(path.join(process.resourcesPath, 'uplaod'));
+  }
   const files = fs.readdirSync(path.join(process.resourcesPath, 'uplaod'));
   mainWindow.webContents.send(
     'files',
