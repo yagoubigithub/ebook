@@ -54,9 +54,15 @@ ipcMain.on('import', (ev, file) => {
 });
 
 ipcMain.on('readAllBooks', () => {
+  try {
+    console.log(path.join(process.resourcesPath, 'uplaod'))
   if (!fs.existsSync(path.join(process.resourcesPath, 'uplaod'))) {
     fs.mkdirSync(path.join(process.resourcesPath, 'uplaod'));
   }
+  } catch (error) {
+    console.log(error)
+  }
+  
   const files = fs.readdirSync(path.join(process.resourcesPath, 'uplaod'));
   mainWindow.webContents.send(
     'files',

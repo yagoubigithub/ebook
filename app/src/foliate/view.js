@@ -70,18 +70,22 @@ export class NotFoundError extends Error {}
 export class UnsupportedTypeError extends Error {}
 
 const fetchFile = async url => {
-    const res = await fetch(url)
+    const filePath = `file://${url}`;  
+    const res = await fetch(filePath)
     if (!res.ok) throw new ResponseError(
         `${res.status} ${res.statusText}`, { cause: res })
     return new File([await res.blob()], new URL(res.url).pathname)
 }
 
 export const makeBook = async file => {
+    console.log(file)
     if (typeof file === 'string') file = await fetchFile(file)
     let book
+
     if (file.isDirectory) {
         const loader = await makeDirectoryLoader(file)
         const { EPUB } = await import('./epub.js')
+
         book = await new EPUB(loader).init()
     }
     else if (!file.size) throw new NotFoundError('File not found')
