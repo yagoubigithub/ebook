@@ -55,10 +55,6 @@ function createWindow(id, options = {}) {
     // window.webContents.openDevTools();
   }
 
-  window.on('close', () => {
-    app.quit();
-    app.exit(0);
-  });
   return window;
 }
 

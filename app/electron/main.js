@@ -17,7 +17,16 @@ app.whenReady().then(() => {
 
   mainWindow = createWindow('main', {});
   book = createWindow('book', { show: false, width, height });
+  book.on("close" , (e)=>{
+    e.preventDefault();
+    book.hide()
+  })
+  mainWindow.on("close" , (e)=>{
+   app.quit()
+   app.exit(0)
+  })
 
+  
   mainWindow.show();
 
   app.on('activate', () => {

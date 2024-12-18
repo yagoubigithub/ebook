@@ -29,10 +29,11 @@ const Book = () => {
 
           view.addEventListener('relocate', (e) => {
             // console.log('location changed');
-            console.log(e.detail);
+            
             const shadowRoot = view.shadowRoot; // This only works for open shadow roots
-            const paginator = shadowRoot.querySelector('foliate-paginator');
+            const paginator = shadowRoot.firstElementChild;
             const iframe = paginator.shadowRoot.querySelector('iframe');
+            
             handleSelect(iframe);
           });
 
@@ -42,7 +43,7 @@ const Book = () => {
           await view.goTo(0);
 
           const shadowRoot = view.shadowRoot; // This only works for open shadow roots
-          const paginator = shadowRoot.querySelector('foliate-paginator');
+          const paginator = shadowRoot.firstElementChild;
           const iframe = paginator.shadowRoot.querySelector('iframe');
           handleSelect(iframe);
           viewRef.current = view;
@@ -55,6 +56,7 @@ const Book = () => {
   const handleSelect = (iframe) => {
     const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
 
+   
     // Add a menu container to the iframe (or the parent document if preferred)
     const menu = document.createElement('div');
     menu.id = 'highlightMenu';
@@ -73,7 +75,8 @@ const Book = () => {
      <button id="cancel">cancel</button>
     </div>`;
     // Listen for selection changes
-    iframeDoc.addEventListener('mouseup', () => {
+    iframeDoc.addEventListener('mouseup', (e) => {
+      console.log("select")
       // If the mouseup event originated from a child, ignore it
       const selection = iframeDoc.getSelection();
       if (selection && selection.toString().trim()) {
@@ -85,15 +88,15 @@ const Book = () => {
         highlightSpan.textContent = range.toString();
 
         // Replace the selected text with the highlighted span
-        range.deleteContents();
-        range.insertNode(highlightSpan);
+        //range.deleteContents();
+       // range.insertNode(highlightSpan);
 
         console.log('Highlighted text:', highlightSpan.textContent);
 
         // Position the menu near the selection
         const rect = highlightSpan.getBoundingClientRect(); // Get position of the highlighted text
-        menu.style.left = `${rect.left + window.scrollX}px`;
-        menu.style.top = `${rect.bottom + window.scrollY}px`;
+        menu.style.left = `${e.pageX + window.scrollX}px`;
+        menu.style.top = `${e.pageY + window.scrollY}px`;
         menu.style.display = 'block';
         menu.querySelector('#save').onclick = () => {
           highlightSpan.replaceWith(
