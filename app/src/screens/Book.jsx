@@ -14,10 +14,6 @@ const Book = () => {
 
   useEffect(() => {
     if (oneTime.current) {
-      // Handle text selection
-      document.addEventListener('selectionchange', () => {
-        console.log('select');
-      });
       window.electron.ipcRenderer.on(
         'file-to-display',
         async (ev, { filePath }) => {
@@ -27,16 +23,14 @@ const Book = () => {
           view.style.width = width + 'px';
           view.style.height = height + 'px';
 
-          view.addEventListener('relocate', (e) => {
-            // console.log('location changed');
-            
+          view.addEventListener('load', () => {
+            console.log('load');
             const shadowRoot = view.shadowRoot; // This only works for open shadow roots
             const paginator = shadowRoot.firstElementChild;
             const iframe = paginator.shadowRoot.querySelector('iframe');
-            
+
             handleSelect(iframe);
           });
-
           bookEle.prepend(view);
           await view.open(filePath);
 
@@ -56,7 +50,70 @@ const Book = () => {
   const handleSelect = (iframe) => {
     const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
 
-   
+    // iframeDoc.removeEventListener('selectionchange', (e) => {
+    //   return selectionchange(e, menu, iframeDoc);
+    // });
+    iframeDoc.addEventListener('mouseup', (e) => {
+      return selectionchange(e, iframeDoc);
+    });
+    // Listen for selection changes
+    // iframeDoc.addEventListener('mouseup', (e) => {
+    //   console.log('select');
+    //   // If the mouseup event originated from a child, ignore it
+    //   const selection = iframeDoc.getSelection();
+    //   if (selection && selection.toString().trim()) {
+    //     const range = selection.getRangeAt(0);
+    //     // Create a highlight span
+    //     const highlightSpan = iframeDoc.createElement('span');
+    //     highlightSpan.style.backgroundColor = 'yellow';
+    //     highlightSpan.classList.add('highlight');
+    //     highlightSpan.textContent = range.toString();
+
+    //     // Replace the selected text with the highlighted span
+    //     //range.deleteContents();
+    //     // range.insertNode(highlightSpan);
+
+    //     console.log('Highlighted text:', highlightSpan.textContent);
+
+    //     // Position the menu near the selection
+    //     // const rect = highlightSpan.getBoundingClientRect(); // Get position of the highlighted text
+    //     menu.style.left = `${e.pageX + window.scrollX}px`;
+    //     menu.style.top = `${e.pageY + window.scrollY}px`;
+    //     menu.style.display = 'block';
+    //     menu.querySelector('#save').onclick = () => {
+    //       highlightSpan.replaceWith(
+    //         document.createTextNode(highlightSpan.textContent),
+    //       ); // Remove highlight
+    //       menu.style.display = 'none';
+
+    //       setNotes([
+    //         ...notes,
+    //         {
+    //           text: highlightSpan.textContent,
+    //           note: menu.querySelector('#textarea').value,
+    //         },
+    //       ]);
+    //     };
+    //     menu.querySelector('#cancel').onclick = () => {
+    //       menu.style.display = 'none';
+    //       highlightSpan.replaceWith(
+    //         document.createTextNode(highlightSpan.textContent),
+    //       ); // Remove highlight
+
+    //       console.log(menu);
+    //     };
+    //   }
+    // });
+    // // Hide menu if clicked elsewhere
+    // iframeDoc.addEventListener('click', (e) => {
+    //   if (!menu.contains(e.target)) {
+    //     menu.style.display = 'none';
+    //   }
+    // });
+  };
+
+  const selectionchange = (e, iframeDoc) => {
+    console.log('selection change');
     // Add a menu container to the iframe (or the parent document if preferred)
     const menu = document.createElement('div');
     menu.id = 'highlightMenu';
@@ -65,70 +122,44 @@ const Book = () => {
     menu.style.background = 'white';
     menu.style.border = '1px solid black';
     menu.style.padding = '5px';
-    iframeDoc.body.appendChild(menu);
 
     menu.innerHTML = `<div>
-    
-    <textarea id="textarea"></textarea>
-    <br />
-    <button id="save">save</button>
-     <button id="cancel">cancel</button>
-    </div>`;
-    // Listen for selection changes
-    iframeDoc.addEventListener('mouseup', (e) => {
-      console.log("select")
-      // If the mouseup event originated from a child, ignore it
-      const selection = iframeDoc.getSelection();
-      if (selection && selection.toString().trim()) {
-        const range = selection.getRangeAt(0);
-        // Create a highlight span
-        const highlightSpan = iframeDoc.createElement('span');
-        highlightSpan.style.backgroundColor = 'yellow';
-        highlightSpan.classList.add('highlight');
-        highlightSpan.textContent = range.toString();
+     
+     <textarea id="textarea"></textarea>
+     <br />
+     <button id="save">save</button>
+      <button id="cancel">cancel</button>
+     </div>`;
+    const selection = iframeDoc.getSelection();
 
-        // Replace the selected text with the highlighted span
-        //range.deleteContents();
-       // range.insertNode(highlightSpan);
+    if (selection && selection.toString().trim()) {
+      const range = selection.getRangeAt(0);
+      // Create a highlight span
+      const highlightSpan = iframeDoc.createElement('span');
+      highlightSpan.style.backgroundColor = 'yellow';
+      highlightSpan.classList.add('highlight');
+      highlightSpan.textContent = range.toString();
+      // Replace the selected text with the highlighted span
+      range.deleteContents();
+      range.insertNode(highlightSpan);
 
-        console.log('Highlighted text:', highlightSpan.textContent);
-
-        // Position the menu near the selection
-        const rect = highlightSpan.getBoundingClientRect(); // Get position of the highlighted text
-        menu.style.left = `${e.pageX + window.scrollX}px`;
-        menu.style.top = `${e.pageY + window.scrollY}px`;
-        menu.style.display = 'block';
-        menu.querySelector('#save').onclick = () => {
-          highlightSpan.replaceWith(
-            document.createTextNode(highlightSpan.textContent),
-          ); // Remove highlight
-          menu.style.display = 'none';
-
-          setNotes([
-            ...notes,
-            {
-              text: highlightSpan.textContent,
-              note: menu.querySelector('#textarea').value,
-            },
-          ]);
-        };
-        menu.querySelector('#cancel').onclick = () => {
-          menu.style.display = 'none';
-          highlightSpan.replaceWith(
-            document.createTextNode(highlightSpan.textContent),
-          ); // Remove highlight
-
-          console.log(menu);
-        };
-      }
-    });
-    // // Hide menu if clicked elsewhere
-    // iframeDoc.addEventListener('click', (e) => {
-    //   if (!menu.contains(e.target)) {
-    //     menu.style.display = 'none';
-    //   }
-    // });
+      console.log('Highlighted text:', highlightSpan.textContent);
+      iframeDoc.body.appendChild(menu);
+      // Position the menu near the selection
+      const rect = highlightSpan.getBoundingClientRect(); // Get position of the highlighted text
+      console.log(rect);
+      menu.style.left = `${rect.x}px`;
+      menu.style.top = `${rect.y}px`;
+      menu.style.display = 'block';
+      menu.querySelector('#save').onclick = () => {
+        highlightSpan.replaceWith(
+          document.createTextNode(highlightSpan.textContent),
+        ); // Remove highlight
+        menu.style.display = 'none';
+      };
+    }
   };
+
   const items = [
     {
       key: '1',

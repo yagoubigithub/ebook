@@ -17,16 +17,15 @@ app.whenReady().then(() => {
 
   mainWindow = createWindow('main', {});
   book = createWindow('book', { show: false, width, height });
-  book.on("close" , (e)=>{
+  book.on('close', (e) => {
     e.preventDefault();
-    book.hide()
-  })
-  mainWindow.on("close" , (e)=>{
-   app.quit()
-   app.exit(0)
-  })
+    book.hide();
+  });
+  mainWindow.on('close', (e) => {
+    app.quit();
+    app.exit(0);
+  });
 
-  
   mainWindow.show();
 
   app.on('activate', () => {
@@ -64,14 +63,14 @@ ipcMain.on('import', (ev, file) => {
 
 ipcMain.on('readAllBooks', () => {
   try {
-    console.log(path.join(process.resourcesPath, 'uplaod'))
-  if (!fs.existsSync(path.join(process.resourcesPath, 'uplaod'))) {
-    fs.mkdirSync(path.join(process.resourcesPath, 'uplaod'));
-  }
+    console.log(path.join(process.resourcesPath, 'uplaod'));
+    if (!fs.existsSync(path.join(process.resourcesPath, 'uplaod'))) {
+      fs.mkdirSync(path.join(process.resourcesPath, 'uplaod'));
+    }
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-  
+
   const files = fs.readdirSync(path.join(process.resourcesPath, 'uplaod'));
   mainWindow.webContents.send(
     'files',
