@@ -4,6 +4,7 @@ import { Tabs, Layout, theme, Tree } from 'antd';
 import MyContext from '../MyContext.js';
 
 import '../foliate/view.js';
+import Notes from './Notes.jsx';
 
 const { Content, Sider } = Layout;
 const Book = () => {
@@ -186,7 +187,7 @@ const Book = () => {
     {
       key: '2',
       label: 'Tabular Notes Tab',
-      children: 'Content of Tab Pane 2',
+      children: <Notes />,
     },
   ];
   const {
