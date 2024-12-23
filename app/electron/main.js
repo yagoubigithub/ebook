@@ -5,14 +5,19 @@ import path from 'path';
 import chokidar from 'chokidar';
 import createWindow from './windows/createWindow.js';
 
+import createDatabase from './db.js';
+
 /**
  * the main window of our porject
  * @type {BrowserWindow}
  */
 let mainWindow;
 let book;
+let db;
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  db = await createDatabase();
+  console.log('Database initialized');
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
   mainWindow = createWindow('main', {});
@@ -115,4 +120,19 @@ ipcMain.on('open-book', (ev, filePath) => {
   });
   book.show();
   book.maximize();
+});
+
+ipcMain.handle('get-notes', async () => {
+  db = await createDatabase();
+  // eslint-disable-next-line no-return-await
+  return await db.all('SELECT * FROM notes');
+});
+
+ipcMain.on('add-note', async (event, note) => {
+  console.log(note);
+  db = await createDatabase();
+  await db.run('INSERT INTO notes (text, note) VALUES (?, ?)', [
+    note.text,
+    note.note,
+  ]);
 });

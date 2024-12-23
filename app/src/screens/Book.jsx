@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
-import { Tabs, Layout, theme } from 'antd';
+import { Tabs, Layout, theme, Tree } from 'antd';
 import MyContext from '../MyContext.js';
 
 import '../foliate/view.js';
@@ -9,6 +9,7 @@ const { Content, Sider } = Layout;
 const Book = () => {
   const { notes, setNotes } = useContext(MyContext);
 
+  const [toc, setToc] = useState([]);
   const oneTime = useRef(true);
   const viewRef = useRef(null);
 
@@ -35,7 +36,21 @@ const Book = () => {
           await view.open(filePath);
 
           await view.goTo(0);
+          const { book } = view;
 
+          if (book.toc) {
+            console.log(book.toc);
+            setToc(book.toc);
+          }
+          // eslint-disable-next-line no-undef
+          Promise.resolve(book.getCover?.())?.then((blob) => {
+            document.getElementById('side-bar-cover').src = blob
+              ? URL.createObjectURL(blob)
+              : null;
+          });
+          const title =
+            formatLanguageMap(book.metadata?.title) || 'Untitled Book';
+          document.getElementById('side-bar-title').innerHTML = title;
           const shadowRoot = view.shadowRoot; // This only works for open shadow roots
           const paginator = shadowRoot.firstElementChild;
           const iframe = paginator.shadowRoot.querySelector('iframe');
@@ -43,6 +58,10 @@ const Book = () => {
           viewRef.current = view;
         },
       );
+
+      window.electron.ipcRenderer.invoke('get-notes').then((notes) => {
+        setNotes(notes);
+      });
       oneTime.current = false;
     }
   });
@@ -56,60 +75,6 @@ const Book = () => {
     iframeDoc.addEventListener('mouseup', (e) => {
       return selectionchange(e, iframeDoc);
     });
-    // Listen for selection changes
-    // iframeDoc.addEventListener('mouseup', (e) => {
-    //   console.log('select');
-    //   // If the mouseup event originated from a child, ignore it
-    //   const selection = iframeDoc.getSelection();
-    //   if (selection && selection.toString().trim()) {
-    //     const range = selection.getRangeAt(0);
-    //     // Create a highlight span
-    //     const highlightSpan = iframeDoc.createElement('span');
-    //     highlightSpan.style.backgroundColor = 'yellow';
-    //     highlightSpan.classList.add('highlight');
-    //     highlightSpan.textContent = range.toString();
-
-    //     // Replace the selected text with the highlighted span
-    //     //range.deleteContents();
-    //     // range.insertNode(highlightSpan);
-
-    //     console.log('Highlighted text:', highlightSpan.textContent);
-
-    //     // Position the menu near the selection
-    //     // const rect = highlightSpan.getBoundingClientRect(); // Get position of the highlighted text
-    //     menu.style.left = `${e.pageX + window.scrollX}px`;
-    //     menu.style.top = `${e.pageY + window.scrollY}px`;
-    //     menu.style.display = 'block';
-    //     menu.querySelector('#save').onclick = () => {
-    //       highlightSpan.replaceWith(
-    //         document.createTextNode(highlightSpan.textContent),
-    //       ); // Remove highlight
-    //       menu.style.display = 'none';
-
-    //       setNotes([
-    //         ...notes,
-    //         {
-    //           text: highlightSpan.textContent,
-    //           note: menu.querySelector('#textarea').value,
-    //         },
-    //       ]);
-    //     };
-    //     menu.querySelector('#cancel').onclick = () => {
-    //       menu.style.display = 'none';
-    //       highlightSpan.replaceWith(
-    //         document.createTextNode(highlightSpan.textContent),
-    //       ); // Remove highlight
-
-    //       console.log(menu);
-    //     };
-    //   }
-    // });
-    // // Hide menu if clicked elsewhere
-    // iframeDoc.addEventListener('click', (e) => {
-    //   if (!menu.contains(e.target)) {
-    //     menu.style.display = 'none';
-    //   }
-    // });
   };
 
   const selectionchange = (e, iframeDoc) => {
@@ -152,10 +117,25 @@ const Book = () => {
       menu.style.top = `${rect.y}px`;
       menu.style.display = 'block';
       menu.querySelector('#save').onclick = () => {
+        window.electron.ipcRenderer.send('add-note', {
+          text: highlightSpan.textContent,
+          note: menu.querySelector('#textarea').value,
+        });
+        window.electron.ipcRenderer.invoke('get-notes').then((notes) => {
+          setNotes(notes);
+        });
         highlightSpan.replaceWith(
           document.createTextNode(highlightSpan.textContent),
         ); // Remove highlight
         menu.style.display = 'none';
+      };
+      menu.querySelector('#cancel').onclick = () => {
+        menu.style.display = 'none';
+        highlightSpan.replaceWith(
+          document.createTextNode(highlightSpan.textContent),
+        ); // Remove highlight
+
+        console.log(menu);
       };
     }
   };
@@ -212,15 +192,53 @@ const Book = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  const onSelect = (selectedKeys, info) => {
+    viewRef.current.goTo(info.node.href);
+    console.log('selected', selectedKeys, info.node.href);
+  };
+  const formatLanguageMap = (x) => {
+    if (!x) return '';
+    if (typeof x === 'string') return x;
+    const keys = Object.keys(x);
+    return x[keys[0]];
+  };
   return (
     <Layout>
       <Layout>
         <Sider
           width={200}
-          style={{ background: 'gray', height: '100vh' }}
+          style={{ background: 'white', height: '100vh' }}
           collapsible
           trigger={null}
-        ></Sider>
+        >
+          <div id="side-bar-header">
+            <img id="side-bar-cover" />
+            <div>
+              <h1 id="side-bar-title"></h1>
+              <p id="side-bar-author"></p>
+            </div>
+          </div>
+
+          <Tree
+            checkable={false}
+            onSelect={onSelect}
+            treeData={toc.map((t) => {
+              return {
+                title: t.label,
+                key: t.id,
+                href: t.href,
+                children: t.subitems.map((s) => {
+                  return {
+                    title: s.label,
+                    key: s.id,
+                    href: s.href,
+                  };
+                }),
+              };
+            })}
+          />
+        </Sider>
         <Layout>
           <Content
             style={{
