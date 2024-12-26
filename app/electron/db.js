@@ -7,7 +7,7 @@ async function createDatabase() {
     driver: sqlite3.Database,
   });
 
-  // Create a sample table
+  // Create a notes table
   await db.exec(`
     CREATE TABLE IF NOT EXISTS notes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -15,6 +15,19 @@ async function createDatabase() {
       note TEXT
     );
   `);
+
+  // Create a column table
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS columns (
+      id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE ,
+      name TEXT,
+      desc TEXT
+    );
+  `);
+
+  await db.exec(
+    'INSERT OR IGNORE INTO columns (id , name, desc) VALUES (1, "Notes", "Create Note")',
+  );
 
   return db;
 }

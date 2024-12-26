@@ -136,3 +136,17 @@ ipcMain.on('add-note', async (event, note) => {
     note.note,
   ]);
 });
+
+ipcMain.handle('get-columns', async () => {
+  db = await createDatabase();
+  // eslint-disable-next-line no-return-await
+  return await db.all('SELECT * FROM columns');
+});
+
+ipcMain.on('add-column', async (event, column) => {
+  db = await createDatabase();
+  await db.run('INSERT INTO columns (name, desc) VALUES (?, ?)', [
+    column.name,
+    column.desc,
+  ]);
+});
