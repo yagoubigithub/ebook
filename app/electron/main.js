@@ -128,13 +128,22 @@ ipcMain.handle('get-notes', async () => {
   return await db.all('SELECT * FROM notes');
 });
 
-ipcMain.on('add-note', async (event, note) => {
-  console.log(note);
+ipcMain.on('add-note', async (event, notes) => {
+  console.log(notes);
   db = await createDatabase();
-  await db.run('INSERT INTO notes (text, note) VALUES (?, ?)', [
-    note.text,
-    note.note,
-  ]);
+  let query = `INSERT INTO notes  `;
+  let names = `(text `;
+  let v = `(?`;
+  notes.note.forEach((note) => {
+    names += `,"column-${note.columnId}"`;
+    v += ',?';
+  });
+
+  names += `)`;
+  v += ')';
+  query += `${names} VALUES ${v}`;
+  console.log(query);
+  await db.run(query, [notes.text, ...notes.note.map((n) => n.note)]);
 });
 
 ipcMain.handle('get-columns', async () => {
@@ -145,8 +154,14 @@ ipcMain.handle('get-columns', async () => {
 
 ipcMain.on('add-column', async (event, column) => {
   db = await createDatabase();
-  await db.run('INSERT INTO columns (name, desc) VALUES (?, ?)', [
-    column.name,
-    column.desc,
-  ]);
+  const result = await db.run(
+    'INSERT INTO columns (name, desc) VALUES (?, ?)',
+    [column.name, column.desc],
+  );
+  // Get the last inserted ID
+  const insertedId = result.lastID;
+
+  console.log(`Inserted row ID: ${insertedId}`);
+
+  await db.exec(`ALTER TABLE notes ADD "column-${insertedId}" TEXT`);
 });

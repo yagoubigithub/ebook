@@ -12,7 +12,7 @@ async function createDatabase() {
     CREATE TABLE IF NOT EXISTS notes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       text TEXT,
-      note TEXT
+      "column-1" TEXT
     );
   `);
 

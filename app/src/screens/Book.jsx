@@ -11,6 +11,7 @@ const { Content, Sider } = Layout;
 const Book = () => {
   const { setNotes } = useContext(MyContext);
 
+  const [columns, setColumns] = useState([]);
   const [toc, setToc] = useState([]);
   const oneTime = useRef(true);
   const viewRef = useRef(null);
@@ -82,7 +83,7 @@ const Book = () => {
     });
   };
 
-  const selectionchange = (e, iframeDoc) => {
+  const selectionchange = async (e, iframeDoc) => {
     console.log('selection change');
     // Add a menu container to the iframe (or the parent document if preferred)
     const menu = document.createElement('div');
@@ -93,13 +94,23 @@ const Book = () => {
     menu.style.border = '1px solid black';
     menu.style.padding = '5px';
 
-    menu.innerHTML = `<div>
-     
-     <textarea id="textarea"></textarea>
+    let html = `<div>`;
+
+    const columns = await window.electron.ipcRenderer.invoke('get-columns');
+    columns.map((column) => {
+      html =
+        html +
+        `<textarea id="textarea-${column.id}" placeholder="${column.name}"></textarea>`;
+    });
+    html =
+      html +
+      `    
      <br />
      <button id="save">save</button>
       <button id="cancel">cancel</button>
      </div>`;
+
+    menu.innerHTML = html;
     const selection = iframeDoc.getSelection();
 
     if (selection && selection.toString().trim()) {
@@ -124,14 +135,22 @@ const Book = () => {
       menu.querySelector('#save').onclick = () => {
         window.electron.ipcRenderer.send('add-note', {
           text: highlightSpan.textContent,
-          note: menu.querySelector('#textarea').value,
+          note: Array.from(menu.querySelectorAll('textarea')).map(
+            (textarea) => {
+              return {
+                note: textarea.value,
+                columnId: textarea.id.split('-')[1],
+              };
+            },
+          ),
         });
         window.electron.ipcRenderer.invoke('get-notes').then((notes) => {
           setNotes(notes);
         });
         highlightSpan.replaceWith(
           document.createTextNode(highlightSpan.textContent),
-        ); // Remove highlight
+        );
+        // Remove highlight
         menu.style.display = 'none';
       };
       menu.querySelector('#cancel').onclick = () => {
