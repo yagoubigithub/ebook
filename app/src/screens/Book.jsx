@@ -5,10 +5,11 @@ import MyContext from '../MyContext.js';
 
 import '../foliate/view.js';
 import Notes from './Notes.jsx';
+import BookSideBar from '../components/BookSideBar.jsx';
 
 const { Content, Sider } = Layout;
 const Book = () => {
-  const { notes, setNotes } = useContext(MyContext);
+  const { setNotes } = useContext(MyContext);
 
   const [toc, setToc] = useState([]);
   const oneTime = useRef(true);
@@ -29,9 +30,12 @@ const Book = () => {
             console.log('load');
             const shadowRoot = view.shadowRoot; // This only works for open shadow roots
             const paginator = shadowRoot.firstElementChild;
-            const iframe = paginator.shadowRoot.querySelector('iframe');
+            const iframes = paginator.shadowRoot.querySelectorAll('iframe');
 
-            handleSelect(iframe);
+            console.log('iframe numb', iframes.length);
+            iframes.forEach((iframe) => {
+              handleSelect(iframe);
+            });
           });
           bookEle.prepend(view);
           await view.open(filePath);
@@ -147,6 +151,20 @@ const Book = () => {
       label: 'Reading Mode Tab',
       children: (
         <div>
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 400,
+              height: 54,
+              border: '1px solid rgba(0,0,0,0.1)',
+              color: 'black',
+              display: 'flex',
+              alignItems: 'center',
+              paddingLeft: 15,
+            }}
+          >
+            ToolBar Setting for reader
+          </div>
           <div id="book-container">
             <div id="book">
               <button
@@ -171,14 +189,7 @@ const Book = () => {
               </button>
             </div>
             <div id="book-sidebar">
-              {notes.map((note, index) => {
-                return (
-                  <ul key={index}>
-                    <li>text : {note.text}</li>
-                    <li>note : {note.note}</li>
-                  </ul>
-                );
-              })}
+              <BookSideBar />
             </div>
           </div>
         </div>
@@ -187,7 +198,25 @@ const Book = () => {
     {
       key: '2',
       label: 'Tabular Notes Tab',
-      children: <Notes />,
+      children: (
+        <div>
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 400,
+              height: 54,
+              border: '1px solid rgba(0,0,0,0.1)',
+              color: 'black',
+              display: 'flex',
+              alignItems: 'center',
+              paddingLeft: 15,
+            }}
+          >
+            ToolBar Setting for reader
+          </div>
+          <Notes />
+        </div>
+      ),
     },
   ];
   const {
@@ -220,7 +249,7 @@ const Book = () => {
               <p id="side-bar-author"></p>
             </div>
           </div>
-
+          <h4>Table Of Content</h4>
           <Tree
             checkable={false}
             onSelect={onSelect}
