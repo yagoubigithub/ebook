@@ -11,7 +11,7 @@ const { Content, Sider } = Layout;
 const Book = () => {
   const { setNotes } = useContext(MyContext);
 
-  const [columns, setColumns] = useState([]);
+  
   const [toc, setToc] = useState([]);
   const oneTime = useRef(true);
   const viewRef = useRef(null);
