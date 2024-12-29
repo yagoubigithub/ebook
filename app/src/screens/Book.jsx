@@ -11,7 +11,6 @@ const { Content, Sider } = Layout;
 const Book = () => {
   const { setNotes } = useContext(MyContext);
 
-  
   const [toc, setToc] = useState([]);
   const oneTime = useRef(true);
   const viewRef = useRef(null);
@@ -277,13 +276,15 @@ const Book = () => {
                 title: t.label,
                 key: t.id,
                 href: t.href,
-                children: t.subitems.map((s) => {
-                  return {
-                    title: s.label,
-                    key: s.id,
-                    href: s.href,
-                  };
-                }),
+                children: t.subitems
+                  ? t.subitems.map((s) => {
+                      return {
+                        title: s.label,
+                        key: s.id,
+                        href: s.href,
+                      };
+                    })
+                  : [],
               };
             })}
           />
