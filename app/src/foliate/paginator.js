@@ -301,6 +301,7 @@ class View {
         this.#size = vertical ? height : width
 
         const doc = this.document
+        if(!doc) return;
         setStylesImportant(doc.documentElement, {
             'box-sizing': 'border-box',
             'column-width': `${Math.trunc(columnWidth)}px`,
