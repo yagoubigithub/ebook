@@ -21,6 +21,10 @@ const Book = () => {
         'file-to-display',
         async (ev, { filePath }) => {
           const bookEle = document.getElementById('book');
+          const oldView = bookEle.querySelector('foliate-view');
+          if (oldView) {
+            oldView.remove();
+          }
           const { width, height } = bookEle.getBoundingClientRect();
           const view = document.createElement('foliate-view');
           view.style.width = width + 'px';
